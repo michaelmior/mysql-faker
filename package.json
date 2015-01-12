@@ -1,0 +1,8 @@
+{
+  "name": "mysql-faker",
+  "version": "0.0.1",
+  "dependencies": {
+    "faker": "^2.1.2",
+    "mysql": "^2.5.4"
+  }
+}
