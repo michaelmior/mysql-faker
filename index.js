@@ -112,7 +112,8 @@ var fakerTypes = {
   'random': [
     'number',
     'array_element',
-    'object_element'
+    'object_element',
+    'uuid'
   ],
 
   'finance': [
