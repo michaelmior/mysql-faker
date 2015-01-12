@@ -199,7 +199,7 @@ function insert(tables, options) {
   connection.connect();
 
   tables.forEach(function (table) {
-    for (var i = 0; i < table.count / 1000000; i++) {
+    for (var i = 0; i < table.count; i++) {
       connection.query('INSERT INTO ' + table.name + ' SET ?', table.row());
     }
   });
