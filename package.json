@@ -1,7 +1,7 @@
 {
   "name": "mysql-faker",
   "description": "A simple use of faker.js to populate MySQL database tables",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "repository": {
     "type": "git",
     "url": "https://github.com/michaelmior/mysql-faker.git"
