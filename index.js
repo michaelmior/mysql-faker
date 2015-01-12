@@ -1,7 +1,8 @@
 var exports = module.exports || {};
 
 var faker = require('faker'),
-    mysql = require('mysql');
+    mysql = require('mysql'),
+    sync = require('synchronize');
 
 // A simple map of all Faker types
 var fakerTypes = {
@@ -202,7 +203,11 @@ function insertCount(connection, table, keys, sql, count) {
     values.push(keys.map(function(column) { return row[column]; }));
   }
 
-  connection.query(sql, [values]);
+  // Synchronously execute the insert
+  sync.await(connection.query({
+    sql: sql,
+    timeout: 10000
+  }, [values], sync.defer()));
 }
 
 /**
@@ -210,28 +215,30 @@ function insertCount(connection, table, keys, sql, count) {
  * database specified by the options parameter
  */
 function insert(tables, options) {
+  // Connect to the MySQL server
   var connection = mysql.createConnection(options);
   connection.connect();
 
-  tables.forEach(function (table) {
-    console.log(table.name);
-    var keys = Object.keys(table.columns),
-        sql = 'INSERT INTO ' + table.name,
-        total = table.count,
-        batches = Math.floor(total / 1000);
-    sql += '(' + keys.join(', ') + ') VALUES ?';
+  // Start a fiber so we can wait for inserts before proceeding
+  sync.fiber(function() {
+    tables.forEach(function (table) {
+      var keys = Object.keys(table.columns),
+          sql = 'INSERT INTO ' + table.name,
+          total = table.count,
+          batches = Math.floor(total / 1000);
+      sql += '(' + keys.join(', ') + ') VALUES ?';
 
-    for (var i = 0; i < batches; i++) {
-      insertCount(connection, table, keys, sql, 1000);
-      total -= 1000;
-      process.stdout.write('.');
-    }
-    if (total > 0) {
-      insertCount(connection, table, keys, sql, total);
-    }
+      for (var i = 0; i < batches; i++) {
+        insertCount(connection, table, keys, sql, 1000);
+        total -= 1000;
+      }
+      if (total > 0) {
+        insertCount(connection, table, keys, sql, total);
+      }
+    });
+
+    connection.end();
   });
-
-  connection.end();
 }
 
 exports.Table = Table;
