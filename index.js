@@ -192,6 +192,20 @@ Table.prototype.row = function() {
 }
 
 /**
+ * Insert a given number of rows for the table using the specified connection
+ */
+function insertCount(connection, table, keys, sql, count) {
+  var values = [];
+
+  for (var j = 0; j < count; j++) {
+    var row = table.row();
+    values.push(keys.map(function(column) { return row[column]; }));
+  }
+
+  connection.query(sql, [values]);
+}
+
+/**
  * Inserts a given a list of tables into the MySQL
  * database specified by the options parameter
  */
@@ -200,8 +214,20 @@ function insert(tables, options) {
   connection.connect();
 
   tables.forEach(function (table) {
-    for (var i = 0; i < table.count; i++) {
-      connection.query('INSERT INTO ' + table.name + ' SET ?', table.row());
+    console.log(table.name);
+    var keys = Object.keys(table.columns),
+        sql = 'INSERT INTO ' + table.name,
+        total = table.count,
+        batches = Math.floor(total / 1000);
+    sql += '(' + keys.join(', ') + ') VALUES ?';
+
+    for (var i = 0; i < batches; i++) {
+      insertCount(connection, table, keys, sql, 1000);
+      total -= 1000;
+      process.stdout.write('.');
+    }
+    if (total > 0) {
+      insertCount(connection, table, keys, sql, total);
     }
   });
 
