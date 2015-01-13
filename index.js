@@ -5,6 +5,52 @@ var faker = require('faker'),
     sync = require('synchronize'),
     ProgressBar = require('progress');
 
+faker.random.number = function(options) {
+  if (typeof options === "number") {
+    options = {
+      max: options
+    };
+  }
+
+  options = options || {};
+
+  if (typeof options.min === "undefined") {
+    options.min = 0;
+  }
+
+  if (typeof options.max === "undefined") {
+    options.max = 1;
+  }
+
+  return Math.floor(Math.random() * (options.max - options.min + 1))
+         + options.min;
+};
+
+// Simple period 249 LCG
+function lcg(seed, max) {
+  if (max != 249) { throw new Error('LCG only works with period 249'); }
+
+  var a = 997,
+      c = 1;
+  return (seed * a + c) % max;
+};
+
+faker.lorem.words = function(num) {
+  if (typeof num == 'undefined') { num = 3; }
+
+  var numWords = faker.definitions.lorem.words.length,
+      seed = faker.random.number(numWords),
+      words = [];
+
+  for (var i = 0; i < num; i++) {
+    words.push(faker.definitions.lorem.words[seed]);
+    seed = lcg(seed, numWords);
+  }
+
+  return words;
+}
+
+
 // A simple map of all Faker types
 var fakerTypes = {
   'name': [
