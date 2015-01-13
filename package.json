@@ -9,6 +9,7 @@
   "dependencies": {
     "faker": "^2.1.2",
     "mysql": "^2.5.4",
+    "progress": "^1.1.8",
     "synchronize": "^0.9.9"
   }
 }

@@ -2,7 +2,8 @@ var exports = module.exports || {};
 
 var faker = require('faker'),
     mysql = require('mysql'),
-    sync = require('synchronize');
+    sync = require('synchronize'),
+    ProgressBar = require('progress');
 
 // A simple map of all Faker types
 var fakerTypes = {
@@ -214,7 +215,7 @@ function insertCount(connection, table, keys, sql, count) {
  * Inserts a given a list of tables into the MySQL
  * database specified by the options parameter
  */
-function insert(tables, options) {
+function insert(tables, options, progress) {
   // Connect to the MySQL server
   var connection = mysql.createConnection(options);
   connection.connect();
@@ -228,12 +229,23 @@ function insert(tables, options) {
           batches = Math.floor(total / 1000);
       sql += '(' + keys.join(', ') + ') VALUES ?';
 
+      // Optionally display a progress bar
+      var bar;
+      if (progress === true) {
+        bar = new ProgressBar(' ' + table.name + ' [:bar] :percent :etas', {
+          total: table.count
+        })
+      }
+
       for (var i = 0; i < batches; i++) {
         insertCount(connection, table, keys, sql, 1000);
         total -= 1000;
+
+        if (progress === true) { bar.tick(1000); }
       }
       if (total > 0) {
         insertCount(connection, table, keys, sql, total);
+        if (progress === true) { bar.tick(total); }
       }
     });
 
