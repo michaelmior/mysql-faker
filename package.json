@@ -8,9 +8,9 @@
     "url": "https://github.com/michaelmior/mysql-faker.git"
   },
   "dependencies": {
-    "faker": "^2.1.2",
+    "faker": "^4.1.0",
     "mysql": "^2.5.4",
-    "progress": "^1.1.8",
-    "synchronize": "^0.9.9"
+    "progress": "^2.0.0",
+    "synchronize": "^2.0.0"
   }
 }
