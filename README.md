@@ -1,5 +1,7 @@
 # MySQL Faker
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/michaelmior/mysql-faker.svg)](https://greenkeeper.io/)
+
 This module uses the excellent [faker.js](https://github.com/Marak/faker.js/) to easily generate data to populate MySQL database with fake data.
 For now, the module assumes that all tables already exist.
 To start, create an instance of the `Table` class giving a name and the number of entities to generate.
